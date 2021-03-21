@@ -1,0 +1,117 @@
+menu "Hardware Drivers Config"
+
+config SOC_STM32F103CB
+    bool
+    select SOC_SERIES_STM32F1
+    select RT_USING_COMPONENTS_INIT
+    select RT_USING_USER_MAIN
+    default y
+
+menu "Onboard Peripheral Drivers"
+	config BSP_USING_RS232
+		bool "Enable RS232 (uart1)"
+		select BSP_USING_UART1
+		default y
+	
+	config BSP_USING_HMI
+		bool "Enable Human Machine Interface (uart2)"
+		select BSP_USING_UART2
+		default y
+	
+	config BSP_USING_ASR
+		bool "Enable Automatic Speech Recognition (uart3)"
+		default y
+		select BSP_USING_UART3
+        select RT_USING_PIN
+		if BSP_USING_ASR
+			config ASR_S1_PIN
+				int "S1 PIN Number"
+				default 4
+			config ASR_S2_PIN
+				int "S2 PIN Number"
+				default 5
+			config ASR_S3_PIN
+				int "S3 PIN Number"
+				default 6
+			config ASR_S4_PIN
+				int "S4 PIN Number"
+				default 7
+		endif
+	
+	config BSP_USING_GES
+		bool "Enable Gesture sensor (PAJ7620 Driver i2c1)"
+		default y
+		select BSP_USING_I2C1
+        select RT_USING_PIN
+		if BSP_USING_GES
+			config PAJ_INT_PIN
+				int "INT PIN Number"
+				default 11
+		endif
+endmenu
+
+menu "On-chip Peripheral Drivers"
+    config BSP_USING_GPIO
+        bool "Enable GPIO"
+        select RT_USING_PIN
+        default y
+
+    menuconfig BSP_USING_UART
+        bool "Enable UART"
+        default y
+        select RT_USING_SERIAL
+        if BSP_USING_UART
+            config BSP_USING_UART1
+                bool "Enable UART1"
+                default y
+
+            config BSP_UART1_RX_USING_DMA
+                bool "Enable UART1 RX DMA"
+                depends on BSP_USING_UART1 && RT_SERIAL_USING_DMA
+                default n
+				
+			config BSP_USING_UART2
+                bool "Enable UART2"
+                default y
+
+            config BSP_UART2_RX_USING_DMA
+                bool "Enable UART2 RX DMA"
+                depends on BSP_USING_UART2 && RT_SERIAL_USING_DMA
+                default n
+				
+            config BSP_USING_UART3
+                bool "Enable UART3"
+                default y
+
+            config BSP_UART3_RX_USING_DMA
+                bool "Enable UART3 RX DMA"
+                depends on BSP_USING_UART3 && RT_SERIAL_USING_DMA
+                default n
+        endif
+
+	menuconfig BSP_USING_I2C1
+		bool "Enable I2C1 BUS"
+        default y
+        select RT_USING_I2C
+        select RT_USING_I2C_BITOPS
+        select RT_USING_PIN
+        if BSP_USING_I2C1
+            config BSP_I2C1_SCL_PIN
+                int "i2c1 scl pin number"
+                range 0 175
+                default 22
+            config BSP_I2C1_SDA_PIN
+                int "I2C1 sda pin number"
+                range 0 175
+                default 23
+        endif
+
+    source "../libraries/HAL_Drivers/Kconfig"
+       
+endmenu
+
+menu "Board extended module Drivers"
+
+endmenu
+
+endmenu
