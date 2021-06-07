@@ -100,6 +100,9 @@ if GetDepend(['BSP_USING_USBD']):
 if GetDepend(['BSP_USING_PULSE_ENCODER']):
     src += ['drv_pulse_encoder.c']
 
+if GetDepend(['BSP_USING_INPUT_CAPTURE']):
+    src += ['drv_input_capture.c']
+
 if GetDepend(['BSP_USING_USBH']):
     src += ['drv_usbh.c']
 
