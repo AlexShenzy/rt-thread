@@ -10,17 +10,20 @@ config SOC_STM32F103CB
 menu "Onboard Peripheral Drivers"
 	config BSP_USING_RS232
 		bool "Enable RS232 (uart1)"
+		select BSP_USING_UART
 		select BSP_USING_UART1
 		default y
 	
 	config BSP_USING_HMI
 		bool "Enable Human Machine Interface (uart2)"
+		select BSP_USING_UART
 		select BSP_USING_UART2
-		default y
+		default n
 	
 	config BSP_USING_ASR
 		bool "Enable Automatic Speech Recognition (uart3)"
-		default y
+		default n
+		select BSP_USING_UART
 		select BSP_USING_UART3
         select RT_USING_PIN
 		if BSP_USING_ASR
@@ -38,12 +41,13 @@ menu "Onboard Peripheral Drivers"
 				default 7
 		endif
 	
-	config BSP_USING_GES
-		bool "Enable Gesture sensor (PAJ7620 Driver i2c1)"
-		default y
-		select BSP_USING_I2C1
+	config BSP_USING_GRS
+		bool "Enable Gesture Recognition Sensor (PAJ7620 Driver i2c1)"
+		default n
         select RT_USING_PIN
-		if BSP_USING_GES
+		select BSP_USING_I2C1
+		select PKG_USING_PAJ7620
+		if BSP_USING_GRS
 			config PAJ_INT_PIN
 				int "INT PIN Number"
 				default 11
@@ -51,6 +55,7 @@ menu "Onboard Peripheral Drivers"
 endmenu
 
 menu "On-chip Peripheral Drivers"
+
     config BSP_USING_GPIO
         bool "Enable GPIO"
         select RT_USING_PIN
@@ -72,7 +77,7 @@ menu "On-chip Peripheral Drivers"
 				
 			config BSP_USING_UART2
                 bool "Enable UART2"
-                default y
+                default n
 
             config BSP_UART2_RX_USING_DMA
                 bool "Enable UART2 RX DMA"
@@ -81,17 +86,17 @@ menu "On-chip Peripheral Drivers"
 				
             config BSP_USING_UART3
                 bool "Enable UART3"
-                default y
+                default n
 
             config BSP_UART3_RX_USING_DMA
                 bool "Enable UART3 RX DMA"
                 depends on BSP_USING_UART3 && RT_SERIAL_USING_DMA
                 default n
         endif
-
+		
 	menuconfig BSP_USING_I2C1
 		bool "Enable I2C1 BUS"
-        default y
+        default n
         select RT_USING_I2C
         select RT_USING_I2C_BITOPS
         select RT_USING_PIN
@@ -105,7 +110,48 @@ menu "On-chip Peripheral Drivers"
                 range 0 175
                 default 23
         endif
+		
+	menuconfig BSP_USING_ONCHIP_RTC
+        bool "Enable RTC"
+        select RT_USING_RTC
+        select RT_USING_LIBC
+        default n
+        if BSP_USING_ONCHIP_RTC
+            choice
+                prompt "Select clock source"
+                default BSP_RTC_USING_LSE
 
+                config BSP_RTC_USING_LSE
+                    bool "RTC USING LSE"
+
+                config BSP_RTC_USING_LSI
+                    bool "RTC USING LSI"
+            endchoice
+        endif
+
+    menuconfig BSP_USING_CAN
+        bool "Enable CAN"
+        default n
+        select RT_USING_CAN
+		if BSP_USING_CAN
+			config BSP_USING_CAN1
+                bool "Enable CAN1"
+                default n
+				
+			config RT_CAN_USING_HDR
+				bool "Enable Hardware filter"
+                default n
+        endif
+		
+    config BSP_USING_ON_CHIP_FLASH
+        bool "Enable on-chip FLASH"
+        default n
+		
+    config BSP_USING_WDT
+        bool "Enable Watchdog Timer"
+        select RT_USING_WDT
+        default n
+		
     source "../libraries/HAL_Drivers/Kconfig"
        
 endmenu

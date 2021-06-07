@@ -58,22 +58,26 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define YYS1_Pin GPIO_PIN_4
-#define YYS1_GPIO_Port GPIOA
-#define YYS2_Pin GPIO_PIN_5
-#define YYS2_GPIO_Port GPIOA
-#define YYS3_Pin GPIO_PIN_6
-#define YYS3_GPIO_Port GPIOA
-#define YYS4_Pin GPIO_PIN_7
-#define YYS4_GPIO_Port GPIOA
+#define ASR_S1_Pin GPIO_PIN_4
+#define ASR_S1_GPIO_Port GPIOA
+#define ASR_S2_Pin GPIO_PIN_5
+#define ASR_S2_GPIO_Port GPIOA
+#define ASR_S3_Pin GPIO_PIN_6
+#define ASR_S3_GPIO_Port GPIOA
+#define ASR_S4_Pin GPIO_PIN_7
+#define ASR_S4_GPIO_Port GPIOA
 #define CAN_ERR_Pin GPIO_PIN_13
 #define CAN_ERR_GPIO_Port GPIOB
 #define CAN_EN_Pin GPIO_PIN_14
 #define CAN_EN_GPIO_Port GPIOB
-#define CAN_STB1_Pin GPIO_PIN_15
-#define CAN_STB1_GPIO_Port GPIOB
-#define I2C_INT_Pin GPIO_PIN_5
-#define I2C_INT_GPIO_Port GPIOB
+#define CAN_STB_Pin GPIO_PIN_15
+#define CAN_STB_GPIO_Port GPIOB
+#define GRS_INT_Pin GPIO_PIN_5
+#define GRS_INT_GPIO_Port GPIOB
+#define GRS_SCL_Pin GPIO_PIN_6
+#define GRS_SCL_GPIO_Port GPIOB
+#define GRS_SDA_Pin GPIO_PIN_7
+#define GRS_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
