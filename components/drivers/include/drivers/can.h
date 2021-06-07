@@ -56,6 +56,8 @@ struct rt_can_filter_item
 #endif /*RT_CAN_USING_HDR*/
 };
 
+#define CAN_STD_ID(id) ((id) << 18)
+
 #ifdef RT_CAN_USING_HDR
 #define RT_CAN_FILTER_ITEM_INIT(id,ide,rtr,mode,mask,ind,args) \
      {(id), (ide), (rtr), (mode), (mask), -1, (ind), (args)}
@@ -112,7 +114,7 @@ struct can_configure
 
 #define CANDEFAULTCONFIG \
 {\
-        CAN1MBaud,\
+        CAN500kBaud,\
         RT_CANMSG_BOX_SZ,\
         RT_CANSND_BOX_NUM,\
         RT_CAN_MODE_NORMAL,\
