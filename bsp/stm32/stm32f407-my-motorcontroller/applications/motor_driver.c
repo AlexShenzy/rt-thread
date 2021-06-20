@@ -8,9 +8,9 @@
 
 static my_motor_driver_t motor[2];
 pid_controller_t pid_config_default = {
-	.Kp = 6.0,
-	.Ki = 0.013,
-	.Kd = 0.1,
+	.Kp = 20.0,
+	.Ki = 0.0,
+	.Kd = -2.0,
 	.integral = 0.0,
 	.state = {0}
 };
@@ -31,8 +31,8 @@ rt_err_t motor_set_output(my_motor_driver_t *drv, rt_int32_t val)
 	val = (val >= 0)? val + DEAD_ZONE_DUTY : val - DEAD_ZONE_DUTY;
 	
 	// 限位
-	val = (val > 1000)? 1000 : val;
-	val = (val < -1000)? -1000 : val;
+	val = (val > 999)? 999 : val;
+	val = (val < -999)? -999 : val;
 	
 	// 占空比值转换为定时器计数值
 	rt_uint32_t output = (rt_uint32_t)((rt_uint64_t)(MOTOR_PWM_DUTY_RANGE - m_abs(val)) * (rt_uint64_t)MOTOR_PWM_PERIOD_NS / MOTOR_PWM_DUTY_RANGE);		
@@ -53,11 +53,12 @@ rt_err_t motor_get_angle(my_motor_driver_t *drv, float *angle)
 {
     struct rt_input_capture_data data[2];
     rt_uint32_t angleHighTime, anglePeriod;
+	static float prev_angle;
     
     rt_device_control(drv->angle_dev, INPUT_CAPTURE_CMD_CLEAR_BUF, RT_NULL);
     rt_device_control(drv->angle_dev, INPUT_CAPTURE_CMD_ENABLE, RT_NULL);
     
-    if(RT_ETIMEOUT == rt_sem_take(&drv->ic_rx, 10)) {
+    if(RT_EOK != rt_sem_take(&drv->ic_rx, 10)) {
         return -1;
     }
     rt_device_control(drv->angle_dev, INPUT_CAPTURE_CMD_DISABLE, RT_NULL);
@@ -75,7 +76,14 @@ rt_err_t motor_get_angle(my_motor_driver_t *drv, float *angle)
     }
     
 	*angle = (float)angleHighTime * 360 / anglePeriod;
-    
+	
+	/* 滤除尖峰 */
+    if((*angle - prev_angle > 20) && (*angle > 200)) {
+		*angle = prev_angle;
+	} else {
+		prev_angle = *angle;
+	}
+	
     return RT_EOK;
 }
 
@@ -102,8 +110,11 @@ void motor_ctrl_thread_entry(void *parameter)
         
         motor_get_angle(&motor[0], &angle1);
         Err1 = motor[0].expect_angle - angle1;
+		
+		/* 将Err控制在-180~180度 */
 		if(Err1 > (float)180.0)			    Err1 = Err2 - (float)360.0;
 		else if (Err1 < (float)-180.0)		Err1 = (float)360.0 + Err1;
+		
 		output1 = pid_calculate(&motor[0].pid, Err1);
         motor_set_output(&motor[0], (int)output1);
         
@@ -114,7 +125,7 @@ void motor_ctrl_thread_entry(void *parameter)
 		output2 = pid_calculate(&motor[1].pid, Err2);
         motor_set_output(&motor[1], (int)output2);
         
-        LOG_D("%d,%d", (int)angle1, (int)output1);
+        LOG_RAW("%d,%d,%d\n", (int)motor[1].expect_angle, (int)angle2, (int)output2);
         
         rt_thread_delay(20);
     }
